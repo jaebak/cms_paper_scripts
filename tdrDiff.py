@@ -119,7 +119,9 @@ class tdrDiff(object):
         else:
             lmk = Path(lmk)
             # look for local for latexdiff as well
-            latexdiff = Path(shutil.which('latexdiff'))
+            #latexdiff = Path(shutil.which('latexdiff'))
+            # Use latexdiff version in github
+            latexdiff = Path(__file__).parent.absolute() / 'latexdiff'
             if not (lmk.exists() and latexdiff.exists()):
                 print('Could not find latexdiff and latexmk')
                 exit()
@@ -144,8 +146,8 @@ class tdrDiff(object):
         
         :return: copies the output PDF file to self._outfile
         """
-        if not os.path.exists("build_tdrDiff"): os.makedirs("build_tdrDiff")
-        workDir = Path(os.path.abspath("build_tdrDiff")) # this is a "permanent" temporary directory. It is not automatically deleted after use.
+        workDir = (Path(__file__).parent / "../build_tdrDiff").absolute()
+        if not workDir.exists(): os.makedirs(str(workDir))
         revBaseOriginal = self._revBase
         revDiffOriginal = self._revDiff
         revBaseHash = subprocess.run(["git", "rev-parse", self._revBase], stdout=subprocess.PIPE).stdout.decode("utf-8").strip() if self._revBase != "." else "current"
@@ -226,11 +228,11 @@ class tdrDiff(object):
         print('Working in %s\n' % Path.cwd())
         docName = self._docTag + '_temp.tex'
         diffile = Path(self._docTag +'_diff.tex') # the TeX file of differences
-        print("Running latexdiff: "+" ".join([str(self._latexdiff), '--verbose', '--flatten', '--allow-spaces', str(export1/docName), str(export0/docName)]))
+        print("Running latexdiff: "+" ".join([str(self._latexdiff), '--verbose', '--flatten', str(export1/docName), str(export0/docName)]))
         print("Output latexdiff file: "+str(diffile.absolute()))
         with open(diffile, mode='w') as out:
             try:
-                subprocess.run([str(self._latexdiff), '--verbose', '--flatten', '--allow-spaces', str(export1/docName), str(export0/docName)], stdout=out, stderr=subprocess.PIPE)
+                subprocess.run([str(self._latexdiff), '--verbose', '--flatten', str(export1/docName), str(export0/docName)], stdout=out, stderr=subprocess.PIPE)
             except subprocess.CalledProcessError as e:
                 self._logger.exception('Problems running latexdiff. Full error message follows.')
                 print(e.output)
