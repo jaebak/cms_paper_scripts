@@ -1,6 +1,7 @@
 # Install instructions
 ```
 cd paper or an folder
+git submodule update --init --remote --recursive
 git clone git@github.com:jaebak/cms_paper_scripts.git
 chmod +x cms_paper_scripts/latexdiff
 ```
